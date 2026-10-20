@@ -163,7 +163,7 @@
     </div>
 
     <!-- Main Module Navigation Tabs -->
-    <div class="flex items-center gap-2 mb-4 no-print">
+    <div class="flex items-center gap-2 mb-4 no-print flex-wrap">
       <button type="button" id="navTabWeight" class="nav-module-btn px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition shadow-sm bg-emerald-800 text-white shadow-emerald-900/10 active:scale-95">
         <i data-lucide="scale" class="w-4 h-4"></i>
         <span>体重・栄養管理</span>
@@ -172,6 +172,11 @@
         <i data-lucide="clipboard-check" class="w-4 h-4 text-emerald-600"></i>
         <span>排便・下剤管理</span>
         <span id="bowelAlertHeaderPill" class="hidden px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white animate-pulse">要対応 <span id="bowelAlertHeaderCount">0</span>名</span>
+      </button>
+      <button type="button" id="navTabDischarged" class="nav-module-btn px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 active:scale-95">
+        <i data-lucide="archive" class="w-4 h-4 text-amber-600"></i>
+        <span>📦 退所者BOX</span>
+        <span id="dischargedCountBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">0名</span>
       </button>
     </div>
 
@@ -461,6 +466,68 @@
       </section>
 
     </div><!-- End Bowel Management View -->
+
+    <!-- Discharged Resident Management View Container (退所者BOX) -->
+    <div id="dischargedManagementView" class="hidden space-y-4 sm:space-y-6">
+      <!-- Top Overview Card -->
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-slate-800 text-white flex items-center justify-center text-xl shadow-inner flex-shrink-0">
+              <i data-lucide="archive" class="w-6 h-6 text-amber-400"></i>
+            </div>
+            <div>
+              <h2 class="font-bold text-base sm:text-lg text-slate-800 flex items-center gap-2">
+                退所者BOX（過去カルテ・台帳保管庫）
+                <span id="dischargedTableCountBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-700 border border-slate-300">0名</span>
+              </h2>
+              <p class="text-xs text-slate-500 mt-0.5">
+                退所された方の過去データ（体重推移・排便記録・看護メモ）はすべて永久保持されています。
+              </p>
+            </div>
+          </div>
+
+          <!-- Search Filter -->
+          <div class="flex items-center gap-2">
+            <div class="relative w-full sm:w-64">
+              <input type="text" id="dischargedSearchInput" placeholder="居室・氏名で検索..." class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm rounded-xl pl-9 pr-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Discharged Residents Table -->
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-slate-800 text-white font-semibold border-b border-slate-700">
+                <th class="py-3 px-3 sm:px-4 w-16 text-center">居室</th>
+                <th class="py-3 px-3 sm:px-4">氏名</th>
+                <th class="py-3 px-2 sm:px-3 text-center">性別</th>
+                <th class="py-3 px-2 sm:px-3 text-center">要介護度</th>
+                <th class="py-3 px-3 text-center">入居日</th>
+                <th class="py-3 px-3 text-center text-amber-300 font-bold">退所日</th>
+                <th class="py-3 px-3">退所理由 / 転出先</th>
+                <th class="py-3 px-3 text-right">最終測定体重</th>
+                <th class="py-3 px-4 text-center">カルテ / 操作</th>
+              </tr>
+            </thead>
+            <tbody id="dischargedTableBody" class="divide-y divide-slate-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div id="dischargedEmptyState" class="py-12 text-center text-slate-400">
+          <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 text-slate-300"></i>
+          <p class="font-medium text-sm text-slate-600">現在、退所者BOXに登録されている利用者はいません</p>
+          <p class="text-xs text-slate-400 mt-1">※個人カルテ画面の「退所処理」ボタンを押すと、この保管庫へ安全に移動・保持されます</p>
+        </div>
+      </section>
+    </div><!-- End Discharged Resident Management View -->
   </main>
 
   <div id="batchInputModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-4">
@@ -516,6 +583,9 @@
     </div>
   </div>
 
+  
+
+
   <div id="residentDetailModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-4">
     <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col max-h-[94vh] overflow-hidden">
       <!-- Modal Header -->
@@ -528,11 +598,16 @@
             <h2 class="font-bold text-base sm:text-lg flex items-center gap-2">
               <span id="detailResidentName">桝井てる 様</span>
               <span id="detailGenderBadge" class="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 font-normal">女性</span>
+              <span id="detailDischargedBadge" class="hidden text-xs px-2 py-0.5 rounded-full bg-rose-900/90 text-rose-200 border border-rose-700 font-bold">【退所済】</span>
             </h2>
-            <p class="text-xs text-slate-400">要介護度: <span id="detailCareLevel">-</span> | 身長: <span id="detailHeightDisplay" class="font-bold text-slate-200">-</span> cm | 入居日: <span id="detailAdmissionDisplay" class="font-bold text-emerald-300">-</span> | 個別体重・栄養推移シート</p>
+            <p class="text-xs text-slate-400">要介護度: <span id="detailCareLevel">-</span> | 身長: <span id="detailHeightDisplay" class="font-bold text-slate-200">-</span> cm | 入居日: <span id="detailAdmissionDisplay" class="font-bold text-emerald-300">-</span><span id="detailDischargeInfoWrapper" class="hidden"> | <span class="text-amber-300 font-bold">退所日: </span><span id="detailDischargeDisplay" class="font-bold text-amber-200">-</span> (<span id="detailDischargeReasonDisplay">-</span>)</span> | 個別カルテ</p>
           </div>
         </div>
         <div class="flex items-center gap-2">
+          <button id="openDischargeModalBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold transition active:scale-95 flex items-center gap-1.5 shadow-sm border bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30" title="退所処理・退所者BOXへ移動">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+            <span id="detailDischargeBtnText">退所処理</span>
+          </button>
           <button id="openEditResidentBtn" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-medium text-emerald-300 hover:text-white transition active:scale-95 flex items-center gap-1.5 shadow-sm border border-slate-600" title="利用者情報を編集">
             <i data-lucide="edit" class="w-3.5 h-3.5"></i>
             <span>利用者情報の編集</span>
@@ -544,6 +619,68 @@
       </div>
 
       <div class="overflow-y-auto flex-1 p-4 sm:p-6 touch-scroll space-y-5">
+        <!-- 入所時（初回）と最新（最終）の体重比較・長期推移評価カード -->
+        <div class="bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-xl p-4 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <h3 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="git-compare" class="w-4 h-4 text-emerald-600"></i>
+              入所時（初回）と最新測定の体重比較・長期推移
+            </h3>
+            <span id="detailCompareStatusBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600 border border-slate-200">
+              判定中
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <!-- 1. 入所時（初回測定） -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
+              <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+                <span class="font-bold flex items-center gap-1 text-slate-700">
+                  <i data-lucide="play-circle" class="w-3.5 h-3.5 text-sky-600"></i> 入所時（初回測定）
+                </span>
+                <span id="detailFirstWeightDate" class="text-[11px] text-slate-500 font-medium">-</span>
+              </div>
+              <div class="flex items-baseline gap-1 mt-0.5">
+                <span id="detailFirstWeightValue" class="text-2xl font-extrabold text-slate-800">-</span>
+                <span class="text-xs font-bold text-slate-500">kg</span>
+                <span id="detailFirstBmiValue" class="text-[11px] text-slate-500 ml-2 font-medium"></span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">基準ベースライン体重</p>
+            </div>
+
+            <!-- 2. 最新（最終測定） -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
+              <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+                <span class="font-bold flex items-center gap-1 text-slate-700">
+                  <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i> 最新（最終測定）
+                </span>
+                <span id="detailLatestWeightDate" class="text-[11px] text-slate-500 font-medium">-</span>
+              </div>
+              <div class="flex items-baseline gap-1 mt-0.5">
+                <span id="detailLatestWeightValue" class="text-2xl font-extrabold text-slate-800">-</span>
+                <span class="text-xs font-bold text-slate-500">kg</span>
+                <span id="detailLatestBmiValue" class="text-[11px] text-slate-500 ml-2 font-medium"></span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">直近の現在体重</p>
+            </div>
+
+            <!-- 3. 変動比較（差分・変動率・経過期間） -->
+            <div id="detailCompareResultBox" class="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-col justify-between">
+              <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+                <span class="font-bold text-slate-700 flex items-center gap-1">
+                  <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600" id="detailCompareTrendIcon"></i> 通算体重変動
+                </span>
+                <span id="detailCompareSpanDisplay" class="text-[11px] text-slate-500 font-medium">-</span>
+              </div>
+              <div class="flex items-baseline gap-2 mt-0.5">
+                <span id="detailCompareDiffValue" class="text-2xl font-extrabold text-slate-800">-</span>
+                <span id="detailComparePercentValue" class="text-xs font-bold text-slate-600"></span>
+              </div>
+              <p id="detailCompareSummaryText" class="text-[10px] text-slate-500 mt-1 truncate">入所時からの比較結果</p>
+            </div>
+          </div>
+        </div>
+
         <!-- 12-Month Weight Trend Chart -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
           <div class="flex items-center justify-between mb-3">
@@ -646,6 +783,66 @@
             </div>
           </div>
         </div>
+
+        <!-- Medical Records from Google Drive Section (往診結果・医師指示書) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="p-1.5 rounded-lg bg-sky-100 text-sky-800 flex items-center justify-center">
+                <i data-lucide="folder-clock" class="w-4 h-4"></i>
+              </span>
+              <div>
+                <h3 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center gap-2">
+                  往診結果・医師指示書（Googleドライブ連携）
+                  <span id="detailMedicalRecordCountBadge" class="text-xs px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600 border border-slate-200">未取得</span>
+                </h3>
+                <p class="text-[11px] text-slate-400">※Googleドライブアプリ不要でPDF・画像をそのままアプリ内で閲覧できます</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" id="refreshMedicalRecordsBtn" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition active:scale-95 flex items-center gap-1 shadow-xs" title="Googleドライブの最新ファイルを取得">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> 最新読込
+              </button>
+              <button type="button" id="openAllMedicalDriveBtn" class="px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-lg text-xs font-medium transition active:scale-95 flex items-center gap-1 shadow-xs" title="Googleドライブのフォルダを別タブで開く">
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i> ドライブを開く
+              </button>
+            </div>
+          </div>
+
+          <!-- Document List Container -->
+          <div id="detailMedicalRecordsList" class="space-y-2">
+            <div class="py-6 text-center text-slate-400 text-xs">
+              <i data-lucide="file-search" class="w-8 h-8 mx-auto mb-1 text-slate-300"></i>
+              <span>カルテを開くと往診結果ファイルを自動検索します</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Medical Record PDF Preview Modal (Googleドライブアプリ不要の直接ビューア) -->
+  <div id="medicalRecordPreviewModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white w-full max-w-5xl h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-4 py-3 bg-slate-800 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2 truncate">
+          <i data-lucide="file-text" class="w-4 h-4 text-sky-400 flex-shrink-0"></i>
+          <span id="previewModalDocTitle" class="font-bold text-xs sm:text-sm truncate">書類プレビュー</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <a id="previewModalExternalLink" href="#" target="_blank" rel="noopener noreferrer" class="px-3 py-1 bg-sky-600 hover:bg-sky-500 rounded-lg text-xs font-bold text-white flex items-center gap-1 transition shadow-sm" title="ブラウザの別タブで全画面表示">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i> 全画面・別タブで開く
+          </a>
+          <button id="closePreviewModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+      <div class="px-4 py-1.5 bg-amber-50 border-b border-amber-200 text-amber-800 text-[11px] flex items-center justify-between flex-shrink-0">
+        <span class="flex items-center gap-1"><i data-lucide="info" class="w-3 h-3 text-amber-600"></i> ※下の枠内にPDFが表示されない場合は、右上の<strong>「全画面・別タブで開く」</strong>を押すと確実に表示されます。</span>
+      </div>
+      <div class="flex-1 bg-slate-100 relative">
+        <iframe id="medicalRecordIframe" src="" class="w-full h-full border-0" allow="autoplay"></iframe>
       </div>
     </div>
   </div>
@@ -777,6 +974,9 @@
     </div>
   </div>
 
+  
+
+
   <!-- Batch Bowel Modal (日別一括入力) -->
   <div id="batchBowelModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-4">
     <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
@@ -844,6 +1044,9 @@
     </div>
   </div>
 
+  
+
+
   <div id="addResidentModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
       <div class="px-5 py-3.5 bg-slate-800 text-white flex items-center justify-between">
@@ -904,6 +1107,9 @@
       </form>
     </div>
   </div>
+
+  
+
 
   <!-- Edit Resident Modal -->
   <div id="editResidentModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
@@ -972,6 +1178,76 @@
     </div>
   </div>
 
+  
+
+
+  <!-- Discharge Resident Modal (退所処理モーダル) -->
+  <div id="dischargeResidentModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-5 py-3.5 bg-slate-800 text-white flex items-center justify-between">
+        <h3 class="font-bold text-sm sm:text-base flex items-center gap-2">
+          <i data-lucide="log-out" class="w-4 h-4 text-amber-400"></i>
+          利用者の退所処理（退所者BOXへ移動）
+        </h3>
+        <button id="closeDischargeModalBtn" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="dischargeResidentForm" class="p-5 space-y-3.5 text-xs sm:text-sm">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-amber-900 text-xs leading-relaxed">
+          <div class="font-bold flex items-center gap-1.5 mb-1 text-amber-800">
+            <i data-lucide="shield-check" class="w-4 h-4 text-amber-600"></i>
+            データ保持と保管庫への移動
+          </div>
+          退所処理を行っても、過去の<strong>体重推移・排便記録・メモ等のデータはすべて永久保持</strong>されます。<br>
+          通常業務の一覧（体重・排便）からは非表示となり、「📦 退所者BOX」へ安全に保管されます。
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">対象利用者</label>
+          <div id="dischargeTargetResidentName" class="font-bold text-base text-slate-800 bg-slate-100 p-2.5 rounded-lg border border-slate-200">
+            -
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">退所日 <span class="text-rose-500">*</span></label>
+          <input type="date" id="dischargeDateInput" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500 focus:outline-none font-bold text-slate-800">
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">退所理由 / 転出先</label>
+          <select id="dischargeReasonSelect" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium text-slate-800">
+            <option value="病院入院">病院入院</option>
+            <option value="介護老人保健施設(老健)">介護老人保健施設(老健)</option>
+            <option value="特別養護老人ホーム(特養)">特別養護老人ホーム(特養)</option>
+            <option value="軽費・有料老人ホーム">軽費・有料老人ホーム</option>
+            <option value="自宅退所">自宅退所</option>
+            <option value="逝去">逝去</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">特記事項・退所メモ（任意）</label>
+          <textarea id="dischargeNotesInput" rows="2" placeholder="転出先病院名や特記事項など" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
+          <button type="button" id="cancelDischargeBtn" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 font-medium">キャンセル</button>
+          <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold shadow-sm flex items-center gap-1.5">
+            <i data-lucide="archive" class="w-4 h-4"></i>
+            退所者BOXへ移動
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  
+
+
   <div id="settingsModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
       <div class="px-5 py-3.5 bg-slate-800 text-white flex items-center justify-between">
@@ -989,6 +1265,15 @@
           <label class="block font-bold text-slate-700 mb-1">ウェブアプリURL</label>
           <input type="url" id="gasUrlInput" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="https://script.google.com/macros/s/.../exec">
           <p class="text-[11px] text-slate-500 mt-1">※提供いただいたURLが初期設定されています。</p>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+            <i data-lucide="folder-check" class="w-4 h-4 text-sky-600"></i>
+            Googleドライブ 往診結果フォルダURL / ID
+          </label>
+          <input type="text" id="medicalFolderUrlInput" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="https://drive.google.com/drive/folders/...">
+          <p class="text-[11px] text-slate-500 mt-1">※月ごとの各利用者様の往診結果・指示書が入っているGoogleドライブフォルダです。</p>
         </div>
 
         <!-- Troubleshooting Guide -->
@@ -1016,6 +1301,9 @@
       </div>
     </div>
   </div>
+
+  
+
 
   <!-- Custom Toast Notification -->
   <div id="toastNotification" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none text-xs sm:text-sm font-medium max-w-sm">
@@ -1117,6 +1405,8 @@
     // 当該年月 (YYYY-MM) において入居済みかどうか判定（入居前なら false）
     function isResidentActiveInMonth(resident, monthKey) {
       if (!resident || !monthKey) return false;
+      // 退所済みの場合は通常業務一覧から除外（退所者BOXへ隔離・データ保持）
+      if (resident.isDischarged) return false;
       // 入居日未設定の場合は常時表示（既存データの互換性維持）
       if (!resident.admissionDate) return true;
       const admMonth = resident.admissionDate.substring(0, 7);
@@ -1643,7 +1933,7 @@
         tbody.appendChild(tr);
       });
 
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide) window.lucide.createIcons();
     }
 
     // 体重差セルの装飾表示
@@ -1660,12 +1950,16 @@
     }
 
     
-    // スプレッドシート同期用のメタデータ（体重履歴・排便記録・入居日・介護度等）のシリアライズ／復元ヘルパー
+    // スプレッドシート同期用のメタデータ（体重履歴・排便記録・入居日・退所情報・介護度等）のシリアライズ／復元ヘルパー
     function packResidentMeta(resident) {
       const meta = {
         gender: resident.gender || "",
         careLevel: resident.careLevel || "",
         admissionDate: resident.admissionDate || "",
+        isDischarged: !!resident.isDischarged,
+        dischargeDate: resident.dischargeDate || "",
+        dischargeReason: resident.dischargeReason || "",
+        dischargeNotes: resident.dischargeNotes || "",
         notes: resident.rawNotes || "",
         weights: resident.weights || {},
         bowel: resident.bowel || {}
@@ -1684,6 +1978,10 @@
           if (meta.gender) resident.gender = meta.gender;
           if (meta.careLevel) resident.careLevel = meta.careLevel;
           if (meta.admissionDate) resident.admissionDate = meta.admissionDate;
+          if (meta.isDischarged !== undefined) resident.isDischarged = !!meta.isDischarged;
+          if (meta.dischargeDate) resident.dischargeDate = meta.dischargeDate;
+          if (meta.dischargeReason) resident.dischargeReason = meta.dischargeReason;
+          if (meta.dischargeNotes) resident.dischargeNotes = meta.dischargeNotes;
           if (meta.notes !== undefined) resident.rawNotes = meta.notes;
           if (meta.weights) resident.weights = { ...resident.weights, ...meta.weights };
           if (meta.bowel) resident.bowel = { ...(resident.bowel || {}), ...meta.bowel };
@@ -1701,7 +1999,7 @@
       const map = {};
       // 1. まず施設台帳マスタ（全35名）を展開
       BUILTIN_RESIDENT_MASTER.forEach(b => {
-        map[String(b.room)] = { ...b, rawNotes: b.notes || "", weights: { ...b.weights }, bowel: {} };
+        map[String(b.room)] = { ...b, rawNotes: b.notes || "", weights: { ...b.weights }, bowel: {}, isDischarged: false, dischargeDate: "", dischargeReason: "", dischargeNotes: "" };
       });
 
       // 2. targetList（スプレッドシート）から身長・体重記録・更新設定を引き継ぐ
@@ -1723,11 +2021,15 @@
             if (t.careLevel) map[roomKey].careLevel = t.careLevel;
             if (t.gender) map[roomKey].gender = t.gender;
             if (t.admissionDate) map[roomKey].admissionDate = t.admissionDate;
+            if (t.isDischarged !== undefined) map[roomKey].isDischarged = !!t.isDischarged;
+            if (t.dischargeDate) map[roomKey].dischargeDate = t.dischargeDate;
+            if (t.dischargeReason) map[roomKey].dischargeReason = t.dischargeReason;
+            if (t.dischargeNotes) map[roomKey].dischargeNotes = t.dischargeNotes;
           } else {
             // スプレッドシート上で新規追加された利用者
             const numH = t.height != null ? parseFloat(t.height) : null;
             const validH = (!isNaN(numH) && numH > 0) ? numH : null;
-            const newRes = { ...t, height: validH, rawNotes: t.notes || "", weights: { ...t.weights }, bowel: {} };
+            const newRes = { ...t, height: validH, rawNotes: t.notes || "", weights: { ...t.weights }, bowel: {}, isDischarged: !!t.isDischarged, dischargeDate: t.dischargeDate || "", dischargeReason: t.dischargeReason || "", dischargeNotes: t.dischargeNotes || "" };
             if (t.notes) unpackResidentMeta(newRes, t.notes);
             if (t.bowel) newRes.bowel = { ...newRes.bowel, ...t.bowel };
             map[roomKey] = newRes;
@@ -1754,6 +2056,8 @@
       residentsList = mergeWithBuiltinMaster(parsed);
       renderMainTable();
       renderBowelMatrix();
+      renderDischargedTable();
+      updateDischargedBadge();
 
       if (!currentGasUrl) {
         updateConnectionStatus("offline", "オフライン（URL未設定）");
@@ -1788,6 +2092,8 @@
           hideDiagnosticsBanner();
           renderMainTable();
           renderBowelMatrix();
+          renderDischargedTable();
+          updateDischargedBadge();
           showToast(`スプレッドシートと同期しました (${residentsList.length}名)`);
         } else {
           throw new Error(json.message || "スプレッドシート側でエラーが返却されました");
@@ -1799,6 +2105,8 @@
         showDiagnosticsBanner(`スプレッドシート同期不可: ${err.message}`);
         renderMainTable();
         renderBowelMatrix();
+        renderDischargedTable();
+        updateDischargedBadge();
       } finally {
         if (syncIcon) syncIcon.classList.remove("pulse-sync");
       }
@@ -1989,6 +2297,240 @@
       }
     }
 
+    /* ==========================================================================
+       Google ドライブ 往診結果・医師指示書 連携ロジック
+       ========================================================================== */
+    const DEFAULT_MEDICAL_FOLDER_ID = "1JPKob31iLnw_4qhzsjFs_CmKaxXJvP68";
+    const STORAGE_KEY_MEDICAL_FOLDER = "kango_medical_folder_id";
+    const STORAGE_KEY_MEDICAL_CACHE = "kango_medical_records_cache";
+
+    let currentMedicalFolderId = localStorage.getItem(STORAGE_KEY_MEDICAL_FOLDER) || DEFAULT_MEDICAL_FOLDER_ID;
+    let cachedMedicalRecords = [];
+    try {
+      const c = localStorage.getItem(STORAGE_KEY_MEDICAL_CACHE);
+      if (c) cachedMedicalRecords = JSON.parse(c);
+    } catch(e) {}
+
+    // GoogleドライブURLからフォルダIDを抽出するヘルパー
+    function extractGoogleDriveFolderId(input) {
+      if (!input) return DEFAULT_MEDICAL_FOLDER_ID;
+      input = input.trim();
+      if (input.includes("/folders/")) {
+        const part = input.split("/folders/")[1];
+        return part.split("?")[0].split("/")[0].trim();
+      }
+      return input;
+    }
+
+    // Googleドライブから往診ファイル一覧を取得（GAS経由）
+    let isFetchingMedicalRecords = false;
+    async function fetchMedicalRecordsFromDrive(forceRefresh = false) {
+      if (!currentGasUrl) return [];
+      if (!forceRefresh && cachedMedicalRecords && cachedMedicalRecords.length > 0) {
+        return cachedMedicalRecords;
+      }
+      if (isFetchingMedicalRecords) return cachedMedicalRecords;
+
+      isFetchingMedicalRecords = true;
+      try {
+        const cleanId = extractGoogleDriveFolderId(currentMedicalFolderId);
+        const url = `${currentGasUrl}?action=getMedicalRecords&folderId=${encodeURIComponent(cleanId)}`;
+        const res = await fetch(url, { method: "GET", redirect: "follow" });
+        const text = await res.text();
+        let json;
+        try { json = JSON.parse(text); } catch(e) {}
+
+        if (json && json.status === "success" && Array.isArray(json.files)) {
+          cachedMedicalRecords = json.files;
+          localStorage.setItem(STORAGE_KEY_MEDICAL_CACHE, JSON.stringify(cachedMedicalRecords));
+          return cachedMedicalRecords;
+        } else {
+          console.warn("GAS往診結果レスポンス:", json);
+          return cachedMedicalRecords;
+        }
+      } catch (err) {
+        console.warn("Googleドライブ往診ファイル取得警告:", err);
+        return cachedMedicalRecords;
+      } finally {
+        isFetchingMedicalRecords = false;
+      }
+    }
+
+    // 該当利用者の往診結果ファイルをカード内に描画
+    async function renderMedicalRecordsForResident(resident, showAll = false) {
+      const container = document.getElementById("detailMedicalRecordsList");
+      const badge = document.getElementById("detailMedicalRecordCountBadge");
+      if (!container || !resident) return;
+
+      container.innerHTML = `
+        <div class="py-6 text-center text-slate-400 text-xs flex items-center justify-center gap-2">
+          <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-sky-600"></i>
+          <span>Googleドライブから往診書類を検索中...</span>
+        </div>
+      `;
+      if (window.lucide) window.lucide.createIcons();
+
+      // キャッシュまたは最新を取得
+      let files = cachedMedicalRecords;
+      if (!files || files.length === 0) {
+        files = await fetchMedicalRecordsFromDrive();
+      }
+
+      // 利用者の居室番号や氏名（フルネーム、または下の名前）で厳密にマッチング
+      const roomStr = String(resident.room || "").trim();
+      const rawName = String(resident.name || "").replace(/[\s　様]/g, "");
+
+      // 下のお名前の抽出（苗字2文字を除いた部分: 例「鈴木喜久子」→「喜久子」）
+      let givenName = "";
+      if (rawName.length >= 3) {
+        givenName = rawName.substring(2);
+      }
+
+      let matched = [];
+      if (showAll) {
+        matched = files || [];
+      } else if (files && files.length > 0) {
+        matched = files.filter(f => {
+          const fn = String(f.name || "");
+          const folderN = String(f.folderName || "");
+
+          // 1. 居室番号による一致（例: "301"）
+          const matchRoom = roomStr && (fn.includes(roomStr) || folderN.includes(roomStr));
+
+          // 2. フルネームによる一致（例: "鈴木喜久子"）
+          const matchFullName = rawName && (fn.includes(rawName) || folderN.includes(rawName));
+
+          // 3. 下のお名前による一致（例: "喜久子"、同姓の別人を防ぐため苗字単体では一致させない）
+          const matchGiven = givenName && givenName.length >= 2 && (fn.includes(givenName) || folderN.includes(givenName));
+
+          return matchRoom || matchFullName || matchGiven;
+        });
+      }
+
+      if (badge) {
+        badge.textContent = `${matched.length}件`;
+        badge.className = matched.length > 0 
+          ? "text-xs px-2 py-0.5 rounded-full font-bold bg-sky-100 text-sky-800 border border-sky-300"
+          : "text-xs px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-500 border border-slate-200";
+      }
+
+      if (!files || files.length === 0) {
+        container.innerHTML = `
+          <div class="py-6 text-center text-slate-400 text-xs bg-slate-50 rounded-xl border border-slate-200 p-4">
+            <i data-lucide="cloud-off" class="w-8 h-8 mx-auto mb-1.5 text-slate-300"></i>
+            <p class="font-medium text-slate-600">往診ファイルデータが未同期です</p>
+            <p class="text-[11px] text-slate-400 mt-1">
+              GAS側の新バージョンデプロイ、または右上の「最新読込」をお試しください。
+            </p>
+            <div class="mt-3 flex items-center justify-center gap-2">
+              <button type="button" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold transition active:scale-95 flex items-center gap-1 shadow-sm" onclick="fetchMedicalRecordsFromDrive(true).then(() => renderMedicalRecordsForResident(selectedResident))">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> ドライブから取得を試みる
+              </button>
+              <button type="button" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-medium transition active:scale-95 flex items-center gap-1 shadow-xs" onclick="window.open('https://drive.google.com/drive/folders/' + extractGoogleDriveFolderId(currentMedicalFolderId), '_blank')">
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Googleドライブを直接開く
+              </button>
+            </div>
+          </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+        return;
+      }
+
+      if (matched.length === 0) {
+        container.innerHTML = `
+          <div class="py-6 text-center text-slate-400 text-xs bg-slate-50 rounded-xl border border-slate-200 p-4">
+            <i data-lucide="file-question" class="w-8 h-8 mx-auto mb-1.5 text-slate-300"></i>
+            <p class="font-medium text-slate-600">この利用者様の一致する往診書類は見つかりませんでした</p>
+            <p class="text-[11px] text-slate-400 mt-1">
+              ファイル名または月フォルダ名に「${resident.room}」または「${resident.name}」が含まれる書類が自動表示されます。
+            </p>
+            <div class="mt-3 flex items-center justify-center gap-2">
+              <button type="button" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold transition active:scale-95 flex items-center gap-1 shadow-sm" onclick="renderMedicalRecordsForResident(selectedResident, true)">
+                <i data-lucide="folder-open" class="w-3.5 h-3.5"></i> フォルダ内の全ファイル（${files.length}件）を表示
+              </button>
+            </div>
+          </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+        return;
+      }
+
+      let html = `<div class="divide-y divide-slate-100 max-h-60 overflow-y-auto">`;
+      if (showAll) {
+        html += `
+          <div class="p-2 mb-2 bg-amber-50 text-amber-800 text-[11px] rounded-lg border border-amber-200 flex items-center justify-between">
+            <span>現在、フォルダ内の全ファイル（${matched.length}件）を表示中</span>
+            <button type="button" class="underline text-amber-900 font-bold" onclick="renderMedicalRecordsForResident(selectedResident, false)">この利用者のみに絞り込む</button>
+          </div>
+        `;
+      }
+
+      matched.forEach(f => {
+        const isPdf = f.mimeType === "application/pdf" || (f.name && f.name.toLowerCase().endsWith(".pdf"));
+        const iconType = isPdf ? "file-text" : "image";
+        const folderTag = f.folderName ? `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-medium mr-1.5 border border-slate-200">${f.folderName}</span>` : "";
+        const updatedDateStr = f.updatedTime ? formatReiwaDate(f.updatedTime.substring(0, 10)) : "";
+        const directPreviewUrl = f.previewUrl || `https://drive.google.com/file/d/${f.id}/preview`;
+
+        html += `
+          <div class="py-2.5 px-3 hover:bg-sky-50/50 rounded-xl transition flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 last:border-b-0">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="${iconType}" class="w-4 h-4"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="font-bold text-xs text-slate-800 truncate" title="${f.name}">
+                  ${folderTag}${f.name}
+                </div>
+                <div class="text-[10px] text-slate-400 mt-0.5">
+                  最終更新: ${updatedDateStr}
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 flex-shrink-0 justify-end">
+              <!-- メイン: 別タブで大きく開く（全端末・スマホで100%確実・拡大自由） -->
+              <a href="${directPreviewUrl}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold transition active:scale-95 flex items-center gap-1.5 shadow-xs" title="Googleドライブアプリ不要でブラウザに全画面表示">
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i> PDFを開く
+              </a>
+              <!-- サブ: アプリ内の小ウィンドウ枠で開く -->
+              <button type="button" class="px-2 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium transition active:scale-95 flex items-center gap-1" onclick="openMedicalRecordPreview('${f.id}', '${encodeURIComponent(f.name)}')" title="アプリ内の枠内でプレビュー">
+                <i data-lucide="eye" class="w-3.5 h-3.5"></i> 枠内
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+      container.innerHTML = html;
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    // 書類のプレビューモーダルを開く（Googleドライブアプリ不要の直接ビューア）
+    function openMedicalRecordPreview(fileId, encodedName) {
+      const modal = document.getElementById("medicalRecordPreviewModal");
+      const iframe = document.getElementById("medicalRecordIframe");
+      const titleEl = document.getElementById("previewModalDocTitle");
+      const linkEl = document.getElementById("previewModalExternalLink");
+      if (!modal || !iframe) return;
+
+      const docName = decodeURIComponent(encodedName || "書類プレビュー");
+      const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+      if (titleEl) titleEl.textContent = docName;
+      if (linkEl) linkEl.href = previewUrl;
+
+      // iframeのURLを確実に設定
+      iframe.src = previewUrl;
+      modal.classList.remove("hidden");
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function closeMedicalRecordPreview() {
+      const modal = document.getElementById("medicalRecordPreviewModal");
+      const iframe = document.getElementById("medicalRecordIframe");
+      if (iframe) iframe.src = "";
+      if (modal) modal.classList.add("hidden");
+    }
+
     function openResidentDetailModal(resident) {
       selectedResident = resident;
       const modal = document.getElementById("residentDetailModal");
@@ -2019,6 +2561,9 @@
       }
       if (indWeightInput) indWeightInput.value = "";
 
+      // 入所時 vs 最新体重 比較サマリーカード描画
+      renderWeightComparisonCard(resident);
+
       // 履歴テーブル
       renderDetailHistoryTable(resident);
 
@@ -2039,7 +2584,39 @@
         }
       }
 
+      // 退所ステータスに応じたUI表示切替
+      const dischargedBadge = document.getElementById("detailDischargedBadge");
+      const dischargeInfoWrapper = document.getElementById("detailDischargeInfoWrapper");
+      const dischargeDisplay = document.getElementById("detailDischargeDisplay");
+      const dischargeReasonDisplay = document.getElementById("detailDischargeReasonDisplay");
+      const dischargeBtn = document.getElementById("openDischargeModalBtn");
+      const dischargeBtnText = document.getElementById("detailDischargeBtnText");
+
+      if (resident.isDischarged) {
+        if (dischargedBadge) dischargedBadge.classList.remove("hidden");
+        if (dischargeInfoWrapper) dischargeInfoWrapper.classList.remove("hidden");
+        if (dischargeDisplay) dischargeDisplay.textContent = formatReiwaDate(resident.dischargeDate);
+        if (dischargeReasonDisplay) dischargeReasonDisplay.textContent = resident.dischargeReason || "退所";
+        if (dischargeBtn) {
+          dischargeBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition active:scale-95 flex items-center gap-1.5 shadow-sm border bg-sky-500/20 text-sky-300 border-sky-500/40 hover:bg-sky-500/30";
+          dischargeBtn.title = "在籍（通常一覧）へ復帰";
+        }
+        if (dischargeBtnText) dischargeBtnText.textContent = "在籍に復帰";
+      } else {
+        if (dischargedBadge) dischargedBadge.classList.add("hidden");
+        if (dischargeInfoWrapper) dischargeInfoWrapper.classList.add("hidden");
+        if (dischargeBtn) {
+          dischargeBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition active:scale-95 flex items-center gap-1.5 shadow-sm border bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30";
+          dischargeBtn.title = "退所処理・退所者BOXへ移動";
+        }
+        if (dischargeBtnText) dischargeBtnText.textContent = "退所処理";
+      }
+
+      // 往診結果書類の自動検索・描画
+      renderMedicalRecordsForResident(resident);
+
       modal.classList.remove("hidden");
+      if (window.lucide) window.lucide.createIcons();
     }
 
     // 利用者の全測定記録（日別・月別）を時系列で整理して取得
@@ -2080,6 +2657,139 @@
       // 日付・年月昇順でソート
       records.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
       return records;
+    }
+
+    // 入所時（初回測定）と最新（最終測定）の体重比較サマリーカードの描画
+    function renderWeightComparisonCard(resident) {
+      const firstDateEl = document.getElementById("detailFirstWeightDate");
+      const firstValEl = document.getElementById("detailFirstWeightValue");
+      const firstBmiEl = document.getElementById("detailFirstBmiValue");
+      const latestDateEl = document.getElementById("detailLatestWeightDate");
+      const latestValEl = document.getElementById("detailLatestWeightValue");
+      const latestBmiEl = document.getElementById("detailLatestBmiValue");
+      const diffValEl = document.getElementById("detailCompareDiffValue");
+      const percentValEl = document.getElementById("detailComparePercentValue");
+      const spanDisplayEl = document.getElementById("detailCompareSpanDisplay");
+      const statusBadge = document.getElementById("detailCompareStatusBadge");
+      const summaryText = document.getElementById("detailCompareSummaryText");
+
+      if (!firstValEl) return;
+
+      const records = getResidentSortedRecords(resident);
+
+      // BMI計算ヘルパー
+      const getBmiStr = (weight) => {
+        if (!resident.height || !weight) return "";
+        const hM = resident.height / 100;
+        const bmi = (weight / (hM * hM)).toFixed(1);
+        return `(BMI: ${bmi})`;
+      };
+
+      // 日付表示ヘルパー
+      const formatRecordDate = (rec) => {
+        if (!rec) return "-";
+        if (rec.key.length === 10) return formatReiwaDate(rec.key);
+        return formatReiwaMonth(rec.key);
+      };
+
+      if (!records || records.length === 0) {
+        firstDateEl.textContent = "未測定";
+        firstValEl.textContent = "-";
+        firstBmiEl.textContent = "";
+        latestDateEl.textContent = "未測定";
+        latestValEl.textContent = "-";
+        latestBmiEl.textContent = "";
+        diffValEl.textContent = "-";
+        diffValEl.className = "text-2xl font-extrabold text-slate-400";
+        percentValEl.textContent = "";
+        spanDisplayEl.textContent = "-";
+        statusBadge.textContent = "測定記録なし";
+        statusBadge.className = "text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-500 border border-slate-200";
+        summaryText.textContent = "体重測定データがまだ登録されていません";
+        return;
+      }
+
+      const firstRec = records[0];
+      const latestRec = records[records.length - 1];
+
+      firstDateEl.textContent = formatRecordDate(firstRec);
+      firstValEl.textContent = firstRec.weight.toFixed(1);
+      firstBmiEl.textContent = getBmiStr(firstRec.weight);
+
+      latestDateEl.textContent = formatRecordDate(latestRec);
+      latestValEl.textContent = latestRec.weight.toFixed(1);
+      latestBmiEl.textContent = getBmiStr(latestRec.weight);
+
+      if (records.length === 1) {
+        diffValEl.textContent = "±0.0 kg";
+        diffValEl.className = "text-2xl font-extrabold text-slate-700";
+        percentValEl.textContent = "(初回記録のみ)";
+        percentValEl.className = "text-xs font-bold text-slate-500";
+        spanDisplayEl.textContent = "初回測定のみ";
+        statusBadge.textContent = "初回測定のみ";
+        statusBadge.className = "text-xs px-2.5 py-0.5 rounded-full font-bold bg-sky-100 text-sky-700 border border-sky-200";
+        summaryText.textContent = "次回測定時に増減・変動率を自動比較します";
+        return;
+      }
+
+      const diffKg = latestRec.weight - firstRec.weight;
+      const percent = (diffKg / firstRec.weight) * 100;
+      const sign = diffKg > 0 ? "+" : "";
+      diffValEl.textContent = `${sign}${diffKg.toFixed(1)} kg`;
+      percentValEl.textContent = `(${sign}${percent.toFixed(1)}%)`;
+
+      // 経過期間
+      const d1 = new Date(firstRec.key.length === 7 ? `${firstRec.key}-01` : firstRec.key);
+      const d2 = new Date(latestRec.key.length === 7 ? `${latestRec.key}-01` : latestRec.key);
+      const diffMonths = (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth());
+      if (diffMonths >= 12) {
+        const y = Math.floor(diffMonths / 12);
+        const m = diffMonths % 12;
+        spanDisplayEl.textContent = m > 0 ? `経過 ${y}年${m}ヶ月` : `経過 ${y}年`;
+      } else if (diffMonths > 0) {
+        spanDisplayEl.textContent = `経過 約${diffMonths}ヶ月`;
+      } else {
+        const diffDays = Math.max(1, Math.round((d2 - d1) / (1000 * 60 * 60 * 24)));
+        spanDisplayEl.textContent = `経過 ${diffDays}日間`;
+      }
+
+      // 臨床的リスク判定（介護報酬・栄養ケアマネジメント基準：半年〜1年で5%以上の減少は要警戒）
+      if (percent <= -10.0) {
+        // 高度減少（-10%以上）
+        diffValEl.className = "text-2xl font-extrabold text-rose-700";
+        percentValEl.className = "text-xs font-bold text-rose-700";
+        statusBadge.textContent = "🚨 高度減少（要精査）";
+        statusBadge.className = "text-xs px-2.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-800 border border-rose-300";
+        summaryText.textContent = `入所時より ${Math.abs(diffKg).toFixed(1)}kg 減少。低栄養・フレイル進行のリスクが高く、食事摂取量・主治医相談が必要です。`;
+      } else if (percent <= -5.0) {
+        // 中等度減少（-5%〜-10%）
+        diffValEl.className = "text-2xl font-extrabold text-amber-700";
+        percentValEl.className = "text-xs font-bold text-amber-700";
+        statusBadge.textContent = "⚠️ 体重減少（注意）";
+        statusBadge.className = "text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300";
+        summaryText.textContent = `入所時より 5%以上の有意な減少。栄養ケア計画の見直し検討推奨。`;
+      } else if (percent >= 10.0) {
+        // 高度増加（+10%以上）
+        diffValEl.className = "text-2xl font-extrabold text-purple-700";
+        percentValEl.className = "text-xs font-bold text-purple-700";
+        statusBadge.textContent = "⚠️ 体重急増（浮腫警戒）";
+        statusBadge.className = "text-xs px-2.5 py-0.5 rounded-full font-bold bg-purple-100 text-purple-800 border border-purple-300";
+        summaryText.textContent = `入所時より ${diffKg.toFixed(1)}kg 増加。心不全・浮腫・体液貯留のリスクを観察してください。`;
+      } else if (percent >= 5.0) {
+        // 増加（+5%〜+10%）
+        diffValEl.className = "text-2xl font-extrabold text-sky-700";
+        percentValEl.className = "text-xs font-bold text-sky-700";
+        statusBadge.textContent = "📈 体重増加傾向";
+        statusBadge.className = "text-xs px-2.5 py-0.5 rounded-full font-bold bg-sky-100 text-sky-800 border border-sky-300";
+        summaryText.textContent = `入所時より体重が増加しています（栄養改善または体液観察）。`;
+      } else {
+        // 安定（±5%未満）
+        diffValEl.className = "text-2xl font-extrabold text-emerald-700";
+        percentValEl.className = "text-xs font-bold text-emerald-700";
+        statusBadge.textContent = "✅ 適正維持（安定）";
+        statusBadge.className = "text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300";
+        summaryText.textContent = `入所時の体重を概ね良好に維持しています（変動幅 ±5%以内）。`;
+      }
     }
 
     function renderDetailHistoryTable(resident) {
@@ -2133,7 +2843,7 @@
         tbody.appendChild(tr);
       });
 
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide) window.lucide.createIcons();
     }
 
     function renderTrendChart(resident) {
@@ -2255,6 +2965,7 @@
       localStorage.setItem(STORAGE_KEY_OFFLINE_DATA, JSON.stringify(residentsList));
       renderDetailHistoryTable(selectedResident);
       renderTrendChart(selectedResident);
+      renderWeightComparisonCard(selectedResident);
       renderMainTable();
       document.getElementById("individualWeightInput").value = "";
       showToast(`${formatReiwaDate(dateVal)}: ${weight}kg を保存中...`, "info");
@@ -2306,6 +3017,7 @@
       localStorage.setItem(STORAGE_KEY_OFFLINE_DATA, JSON.stringify(residentsList));
       renderDetailHistoryTable(selectedResident);
       renderTrendChart(selectedResident);
+      renderWeightComparisonCard(selectedResident);
       renderMainTable();
       showToast("測定記録を削除しました");
 
@@ -2729,7 +3441,134 @@
         tbody.appendChild(tr);
       });
 
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    // ==========================================================================
+    // 退所者BOX（過去カルテ・台帳保管庫）管理ロジック
+    // ==========================================================================
+
+    function updateDischargedBadge() {
+      const count = residentsList.filter(r => r.isDischarged).length;
+      const b1 = document.getElementById("dischargedCountBadge");
+      const b2 = document.getElementById("dischargedTableCountBadge");
+      if (b1) b1.textContent = `${count}名`;
+      if (b2) b2.textContent = `${count}名`;
+    }
+
+    function renderDischargedTable() {
+      const tbody = document.getElementById("dischargedTableBody");
+      const emptyState = document.getElementById("dischargedEmptyState");
+      const searchInput = document.getElementById("dischargedSearchInput");
+      const query = (searchInput ? searchInput.value : "").trim().toLowerCase();
+
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      let list = residentsList.filter(r => r.isDischarged);
+      updateDischargedBadge();
+
+      if (query) {
+        list = list.filter(r => 
+          String(r.room).toLowerCase().includes(query) ||
+          String(r.name).toLowerCase().includes(query) ||
+          String(r.dischargeReason || "").toLowerCase().includes(query) ||
+          String(r.dischargeNotes || "").toLowerCase().includes(query)
+        );
+      }
+
+      if (list.length === 0) {
+        if (emptyState) emptyState.classList.remove("hidden");
+        return;
+      }
+      if (emptyState) emptyState.classList.add("hidden");
+
+      list.forEach(res => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+
+        // 最終測定体重
+        const records = getResidentSortedRecords(res);
+        let lastWeightDisplay = '<span class="text-slate-400">-</span>';
+        if (records.length > 0) {
+          const lastRec = records[records.length - 1];
+          lastWeightDisplay = `<span class="font-bold text-slate-800">${lastRec.weight.toFixed(1)} kg</span><span class="text-[10px] text-slate-400 block">${formatReiwaDate(lastRec.date)}</span>`;
+        }
+
+        tr.innerHTML = `
+          <td class="py-3 px-3 sm:px-4 text-center font-bold text-slate-700">${res.room}</td>
+          <td class="py-3 px-3 sm:px-4">
+            <div class="font-bold text-slate-900 cursor-pointer hover:text-emerald-700" onclick="openResidentDetailModalFromRoom('${res.room}')" title="カルテを開く">${res.name}</div>
+          </td>
+          <td class="py-3 px-2 sm:px-3 text-center text-slate-600">${res.gender || "-"}</td>
+          <td class="py-3 px-2 sm:px-3 text-center">
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">${res.careLevel || "未設定"}</span>
+          </td>
+          <td class="py-3 px-3 text-center text-slate-600">${formatReiwaDate(res.admissionDate)}</td>
+          <td class="py-3 px-3 text-center font-bold text-amber-800 bg-amber-50/50">${formatReiwaDate(res.dischargeDate)}</td>
+          <td class="py-3 px-3">
+            <div class="font-medium text-slate-800">${res.dischargeReason || "退所"}</div>
+            ${res.dischargeNotes ? `<div class="text-[11px] text-slate-500 mt-0.5 max-w-xs truncate" title="${res.dischargeNotes}">${res.dischargeNotes}</div>` : ""}
+          </td>
+          <td class="py-3 px-3 text-right">${lastWeightDisplay}</td>
+          <td class="py-3 px-4 text-center">
+            <div class="flex items-center justify-center gap-2">
+              <button type="button" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition active:scale-95 flex items-center gap-1 shadow-sm" onclick="openResidentDetailModalFromRoom('${res.room}')" title="過去データ・推移グラフを閲覧">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i> カルテ確認
+              </button>
+              <button type="button" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-medium transition active:scale-95 flex items-center gap-1" onclick="handleRestoreResident('${res.room}')" title="在籍一覧へ復帰（退所者BOXから通常一覧へ戻す）">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-sky-600"></i> 復帰
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function openResidentDetailModalFromRoom(room) {
+      const res = residentsList.find(r => String(r.room) === String(room));
+      if (res) openResidentDetailModal(res);
+    }
+
+    async function handleRestoreResident(room) {
+      const res = residentsList.find(r => String(r.room) === String(room));
+      if (!res) return;
+      if (!confirm(`【在籍復帰】\n${res.room}号室 ${res.name} 様を在籍（アクティブ一覧）に戻しますか？\n\n・退所者BOXから通常一覧（体重・排便）へ復帰します。\n・過去の測定データはすべてそのまま引き継がれます。`)) {
+        return;
+      }
+      res.isDischarged = false;
+      localStorage.setItem(STORAGE_KEY_OFFLINE_DATA, JSON.stringify(residentsList));
+      renderMainTable();
+      renderBowelMatrix();
+      renderDischargedTable();
+      updateDischargedBadge();
+      if (selectedResident && String(selectedResident.room) === String(res.room)) {
+        openResidentDetailModal(res);
+      }
+      showToast(`${res.name} 様を在籍一覧へ復帰させました`);
+
+      if (currentGasUrl) {
+        try {
+          const payload = {
+            room: res.room,
+            name: res.name,
+            height: res.height,
+            notes: packResidentMeta(res)
+          };
+          await fetch(currentGasUrl, {
+            method: "POST",
+            redirect: "follow",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action: "saveResident", resident: payload })
+          });
+          showToast("スプレッドシートへ復帰情報を保存しました");
+        } catch(e) {
+          console.warn("GAS同期警告:", e);
+        }
+      }
     }
 
     // 利用者名クリックで体重詳細モーダル（カルテ）を表示するショートカット
@@ -2777,7 +3616,7 @@
       document.getElementById("singleBowelMemoInput").value = rec.memo || "";
 
       document.getElementById("singleBowelModal").classList.remove("hidden");
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide) window.lucide.createIcons();
     }
 
     // 単一排便記録フォームの保存処理
@@ -2847,7 +3686,7 @@
 
       renderBatchBowelRows();
       modal.classList.remove("hidden");
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide) window.lucide.createIcons();
     }
 
     // 日別一括入力モーダル内のテーブル行描画
@@ -3072,7 +3911,7 @@
         icon.className = "w-5 h-5 text-emerald-400";
       }
 
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide) window.lucide.createIcons();
 
       toast.classList.remove("translate-y-24", "opacity-0");
       setTimeout(() => {
@@ -3082,7 +3921,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       generateMonthOptions();
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide) window.lucide.createIcons();
 
       // 初期データ同期開始
       loadDataFromSpreadsheet();
@@ -3157,7 +3996,7 @@
         document.getElementById("editCareLevelInput").value = selectedResident.careLevel || "";
         document.getElementById("editAdmissionDateInput").value = selectedResident.admissionDate || "";
         document.getElementById("editResidentModal").classList.remove("hidden");
-        if (window.lucide) lucide.createIcons();
+        if (window.lucide) window.lucide.createIcons();
       }
 
       function closeEditResidentModal() {
@@ -3336,12 +4175,22 @@
       });
 
       // 設定・トラブルシューティングモーダル
-      document.getElementById("openSettingsBtn").addEventListener("click", () => {
+      function syncSettingsInputs() {
         document.getElementById("gasUrlInput").value = currentGasUrl;
+        const folderInput = document.getElementById("medicalFolderUrlInput");
+        if (folderInput) {
+          folderInput.value = currentMedicalFolderId.includes("drive.google.com")
+            ? currentMedicalFolderId
+            : `https://drive.google.com/drive/folders/${currentMedicalFolderId}`;
+        }
+      }
+
+      document.getElementById("openSettingsBtn").addEventListener("click", () => {
+        syncSettingsInputs();
         document.getElementById("settingsModal").classList.remove("hidden");
       });
       document.getElementById("showTroubleshootingBtn").addEventListener("click", () => {
-        document.getElementById("gasUrlInput").value = currentGasUrl;
+        syncSettingsInputs();
         document.getElementById("settingsModal").classList.remove("hidden");
       });
       document.getElementById("closeSettingsModalBtn").addEventListener("click", () => {
@@ -3351,8 +4200,21 @@
         const url = document.getElementById("gasUrlInput").value.trim();
         currentGasUrl = url;
         localStorage.setItem(STORAGE_KEY_GAS_URL, url);
+
+        const folderInput = document.getElementById("medicalFolderUrlInput");
+        if (folderInput) {
+          const folderVal = folderInput.value.trim();
+          const cleanFolderId = extractGoogleDriveFolderId(folderVal);
+          if (cleanFolderId) {
+            currentMedicalFolderId = cleanFolderId;
+            localStorage.setItem(STORAGE_KEY_MEDICAL_FOLDER, cleanFolderId);
+          }
+        }
+
         document.getElementById("settingsModal").classList.add("hidden");
         loadDataFromSpreadsheet();
+        fetchMedicalRecordsFromDrive(true);
+        showToast("設定を保存しました");
       });
       document.getElementById("resetDefaultGasUrlBtn").addEventListener("click", () => {
         currentGasUrl = DEFAULT_GAS_URL;
@@ -3362,36 +4224,165 @@
         showToast("デフォルトURLに復元しました");
       });
 
+      // 往診結果プレビューモーダル・ドライブ連携イベント
+      const closePreviewModalBtn = document.getElementById("closePreviewModalBtn");
+      if (closePreviewModalBtn) {
+        closePreviewModalBtn.addEventListener("click", closeMedicalRecordPreview);
+      }
+      const refreshMedicalBtn = document.getElementById("refreshMedicalRecordsBtn");
+      if (refreshMedicalBtn) {
+        refreshMedicalBtn.addEventListener("click", async () => {
+          showToast("Googleドライブから最新ファイルを取得中...", "info");
+          await fetchMedicalRecordsFromDrive(true);
+          if (selectedResident) renderMedicalRecordsForResident(selectedResident);
+          showToast("最新の往診ファイルを同期しました");
+        });
+      }
+      const openAllMedicalDriveBtn = document.getElementById("openAllMedicalDriveBtn");
+      if (openAllMedicalDriveBtn) {
+        openAllMedicalDriveBtn.addEventListener("click", () => {
+          const fid = extractGoogleDriveFolderId(currentMedicalFolderId);
+          window.open(`https://drive.google.com/drive/folders/${fid}`, "_blank");
+        });
+      }
+
       /* ==========================================================================
          排便管理・ナビゲーション タブ イベントリスナー登録
          ========================================================================== */
       initBowelMonthSelect();
 
-      // ナビゲーションタブ切替（体重・栄養管理 ⇄ 排便・下剤管理）
+      // ナビゲーションタブ切替（体重・栄養管理 ⇄ 排便・下剤管理 ⇄ 📦 退所者BOX）
       const navTabWeight = document.getElementById("navTabWeight");
       const navTabBowel = document.getElementById("navTabBowel");
+      const navTabDischarged = document.getElementById("navTabDischarged");
       const weightView = document.getElementById("weightManagementView");
       const bowelView = document.getElementById("bowelManagementView");
+      const dischargedView = document.getElementById("dischargedManagementView");
 
       function switchModuleTab(target) {
+        const activeClass = "nav-module-btn px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition shadow-sm bg-emerald-800 text-white shadow-emerald-900/10 active:scale-95";
+        const inactiveClass = "nav-module-btn px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 active:scale-95";
+
+        weightView.classList.add("hidden");
+        bowelView.classList.add("hidden");
+        if (dischargedView) dischargedView.classList.add("hidden");
+
+        navTabWeight.className = inactiveClass;
+        navTabBowel.className = inactiveClass;
+        if (navTabDischarged) navTabDischarged.className = inactiveClass;
+
         if (target === "bowel") {
-          weightView.classList.add("hidden");
           bowelView.classList.remove("hidden");
-          navTabBowel.className = "nav-module-btn px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition shadow-sm bg-emerald-800 text-white shadow-emerald-900/10 active:scale-95";
-          navTabWeight.className = "nav-module-btn px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 active:scale-95";
+          navTabBowel.className = activeClass;
           renderBowelMatrix();
+        } else if (target === "discharged") {
+          if (dischargedView) dischargedView.classList.remove("hidden");
+          if (navTabDischarged) navTabDischarged.className = activeClass;
+          renderDischargedTable();
         } else {
-          bowelView.classList.add("hidden");
           weightView.classList.remove("hidden");
-          navTabWeight.className = "nav-module-btn px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition shadow-sm bg-emerald-800 text-white shadow-emerald-900/10 active:scale-95";
-          navTabBowel.className = "nav-module-btn px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 active:scale-95";
+          navTabWeight.className = activeClass;
           renderMainTable();
         }
-        if (window.lucide) lucide.createIcons();
+        if (window.lucide) window.lucide.createIcons();
       }
 
       navTabWeight.addEventListener("click", () => switchModuleTab("weight"));
       navTabBowel.addEventListener("click", () => switchModuleTab("bowel"));
+      if (navTabDischarged) {
+        navTabDischarged.addEventListener("click", () => switchModuleTab("discharged"));
+      }
+
+      // 退所者BOX 検索入力イベント
+      const dischargedSearchInput = document.getElementById("dischargedSearchInput");
+      if (dischargedSearchInput) {
+        dischargedSearchInput.addEventListener("input", renderDischargedTable);
+      }
+
+      // 退所処理モーダルの開閉と送信
+      function openDischargeModal() {
+        if (!selectedResident) return;
+        // もし既に退所中なら在籍復帰の確認を行う
+        if (selectedResident.isDischarged) {
+          handleRestoreResident(selectedResident.room);
+          return;
+        }
+
+        document.getElementById("dischargeTargetResidentName").textContent = `${selectedResident.room}号室 ${selectedResident.name} 様`;
+        const todayStr = new Date().toISOString().split("T")[0];
+        document.getElementById("dischargeDateInput").value = selectedResident.dischargeDate || todayStr;
+        document.getElementById("dischargeReasonSelect").value = selectedResident.dischargeReason || "病院入院";
+        document.getElementById("dischargeNotesInput").value = selectedResident.dischargeNotes || "";
+
+        document.getElementById("dischargeResidentModal").classList.remove("hidden");
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      function closeDischargeModal() {
+        document.getElementById("dischargeResidentModal").classList.add("hidden");
+      }
+
+      const openDischargeBtn = document.getElementById("openDischargeModalBtn");
+      if (openDischargeBtn) openDischargeBtn.addEventListener("click", openDischargeModal);
+      const closeDischargeBtn = document.getElementById("closeDischargeModalBtn");
+      if (closeDischargeBtn) closeDischargeBtn.addEventListener("click", closeDischargeModal);
+      const cancelDischargeBtn = document.getElementById("cancelDischargeBtn");
+      if (cancelDischargeBtn) cancelDischargeBtn.addEventListener("click", closeDischargeModal);
+
+      // 退所フォーム送信イベント
+      const dischargeForm = document.getElementById("dischargeResidentForm");
+      if (dischargeForm) {
+        dischargeForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (!selectedResident) return;
+
+          const dateVal = document.getElementById("dischargeDateInput").value;
+          const reasonVal = document.getElementById("dischargeReasonSelect").value;
+          const notesVal = document.getElementById("dischargeNotesInput").value.trim();
+
+          if (!dateVal) {
+            showToast("退所日を入力してください", "warning");
+            return;
+          }
+
+          selectedResident.isDischarged = true;
+          selectedResident.dischargeDate = dateVal;
+          selectedResident.dischargeReason = reasonVal;
+          selectedResident.dischargeNotes = notesVal;
+
+          localStorage.setItem(STORAGE_KEY_OFFLINE_DATA, JSON.stringify(residentsList));
+
+          closeDischargeModal();
+          openResidentDetailModal(selectedResident);
+          renderMainTable();
+          renderBowelMatrix();
+          renderDischargedTable();
+          updateDischargedBadge();
+
+          showToast(`${selectedResident.name} 様を退所者BOXへ移動しました`);
+
+          if (currentGasUrl) {
+            try {
+              const payload = {
+                room: selectedResident.room,
+                name: selectedResident.name,
+                height: selectedResident.height,
+                notes: packResidentMeta(selectedResident)
+              };
+              await fetch(currentGasUrl, {
+                method: "POST",
+                redirect: "follow",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({ action: "saveResident", resident: payload })
+              });
+              showToast("退所情報をスプレッドシートへ保存しました");
+            } catch(err) {
+              console.warn("GAS退所同期エラー:", err);
+              showToast("通信エラー: スプレッドシート同期に失敗しました", "warning");
+            }
+          }
+        });
+      }
 
       // 排便月選択イベント
       const bowelMonthSelect = document.getElementById("bowelMonthSelect");
