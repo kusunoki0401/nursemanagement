@@ -295,11 +295,11 @@
         <table class="w-full text-left text-xs sm:text-sm border-collapse">
           <thead>
             <tr class="bg-slate-100/80 text-slate-700 font-semibold border-b border-slate-200 uppercase tracking-wider text-[11px] sm:text-xs">
-              <th class="py-3 px-3 sm:px-4 w-16 text-center">居室</th>
+              <th class="py-3 px-3 sm:px-4 w-16 min-w-[56px] text-center">居室</th>
               <th class="py-3 px-3 sm:px-4 min-w-[130px]">氏名</th>
-              <th class="py-3 px-2 sm:px-3 text-center">身長</th>
-              <th class="py-3 px-3 text-right bg-emerald-50/70 border-x border-emerald-100 text-emerald-900 font-bold">当月体重</th>
-              <th class="py-3 px-2 sm:px-3 text-center">BMI</th>
+              <th class="py-3 px-2 sm:px-3 text-center min-w-[64px]">身長</th>
+              <th class="py-3 px-3 text-right bg-emerald-50/70 border-x border-emerald-100 text-emerald-900 font-bold min-w-[84px]">当月体重</th>
+              <th class="py-3 px-2 sm:px-3 text-center min-w-[76px]">BMI</th>
               <th class="py-3 px-2 sm:px-3 text-right min-w-[90px]">1ヶ月差</th>
               <th class="py-3 px-2 sm:px-3 text-right min-w-[90px]">3ヶ月差</th>
               <th class="py-3 px-2 sm:px-3 text-right min-w-[90px]">半年差</th>
@@ -558,7 +558,7 @@
               <th class="py-2 px-3">氏名</th>
               <th class="py-2 px-3 text-right">前月体重</th>
               <th class="py-2 px-3 text-right w-36">当月体重 (kg)</th>
-              <th class="py-2 px-3 text-center">当月BMI</th>
+              <th class="py-2 px-3 text-center min-w-[70px]">当月BMI</th>
             </tr>
           </thead>
           <tbody id="batchInputTableBody" class="divide-y divide-slate-100">
@@ -755,7 +755,7 @@
                   <tr>
                     <th class="py-1.5 px-2">測定日</th>
                     <th class="py-1.5 px-2 text-right">体重</th>
-                    <th class="py-1.5 px-2 text-center">BMI</th>
+                    <th class="py-1.5 px-2 text-center min-w-[60px]">BMI</th>
                     <th class="py-1.5 px-2 text-right">前回差</th>
                     <th class="py-1.5 px-2 text-center w-10">操作</th>
                   </tr>
@@ -1507,12 +1507,48 @@
 
     // BMI評価とバッジカラー
     function getBmiEvaluation(bmi) {
-      if (bmi === null) return { text: "未登録", bg: "bg-slate-100", textCol: "text-slate-500" };
-      if (bmi < 18.5) return { text: "低体重 (低栄養)", bg: "bg-indigo-50", textCol: "text-indigo-700 font-bold" };
-      if (bmi < 20.0) return { text: "やせ傾向", bg: "bg-sky-50", textCol: "text-sky-700" };
-      if (bmi <= 24.9) return { text: "普通体重", bg: "bg-emerald-50", textCol: "text-emerald-700 font-medium" };
-      if (bmi <= 29.9) return { text: "肥満 (1度)", bg: "bg-amber-50", textCol: "text-amber-800" };
-      return { text: "肥満 (2度以上)", bg: "bg-rose-50", textCol: "text-rose-700 font-bold" };
+      if (bmi === null) return { 
+        text: "未登録", 
+        shortText: "未登録", 
+        bg: "bg-slate-100", 
+        textCol: "text-slate-500", 
+        borderCol: "border-slate-200" 
+      };
+      if (bmi < 18.5) return { 
+        text: "低体重 (低栄養)", 
+        shortText: "低体重", 
+        bg: "bg-indigo-50", 
+        textCol: "text-indigo-700", 
+        borderCol: "border-indigo-200" 
+      };
+      if (bmi < 20.0) return { 
+        text: "やせ傾向", 
+        shortText: "やせ傾向", 
+        bg: "bg-sky-50", 
+        textCol: "text-sky-700", 
+        borderCol: "border-sky-200" 
+      };
+      if (bmi <= 24.9) return { 
+        text: "普通体重", 
+        shortText: "普通体重", 
+        bg: "bg-emerald-50", 
+        textCol: "text-emerald-700", 
+        borderCol: "border-emerald-200" 
+      };
+      if (bmi <= 29.9) return { 
+        text: "肥満 (1度)", 
+        shortText: "肥満(1度)", 
+        bg: "bg-amber-50", 
+        textCol: "text-amber-800", 
+        borderCol: "border-amber-200" 
+      };
+      return { 
+        text: "肥満 (2度以上)", 
+        shortText: "高度肥満", 
+        bg: "bg-rose-50", 
+        textCol: "text-rose-700", 
+        borderCol: "border-rose-200" 
+      };
     }
 
     // 体重差（kgと%）の計算
@@ -1906,10 +1942,14 @@
           <td class="py-3 px-3 text-right bg-emerald-50/50 border-x border-emerald-100/70 font-bold ${curr ? 'text-emerald-950 text-sm sm:text-base' : 'text-slate-400 italic text-xs'}">
             ${curr != null ? `${curr.toFixed(1)} <span class="text-[10px] font-normal text-slate-500">kg</span>` : '未測定'}
           </td>
-          <td class="py-3 px-2 sm:px-3 text-center">
+          <td class="py-3 px-1 sm:px-2 text-center whitespace-nowrap">
             ${bmi !== null ? `
-              <div class="font-bold ${bmiEval.textCol}">${bmi}</div>
-              <div class="text-[10px] px-1.5 py-0.5 rounded ${bmiEval.bg} ${bmiEval.textCol} inline-block">${bmiEval.text}</div>
+              <div class="font-bold text-xs sm:text-sm ${bmiEval.textCol} leading-none tracking-tight">${bmi.toFixed(1)}</div>
+              <div class="mt-1">
+                <span class="inline-block px-1.5 py-0.5 rounded-full text-[10px] font-bold ${bmiEval.bg} ${bmiEval.textCol} border ${bmiEval.borderCol} whitespace-nowrap shadow-2xs leading-none" title="${bmiEval.text}">
+                  ${bmiEval.shortText}
+                </span>
+              </div>
             ` : '<span class="text-slate-400 text-xs">-</span>'}
           </td>
           <td class="py-3 px-2 sm:px-3 text-right">${renderDiffCell(diff1)}</td>
