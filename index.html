@@ -1896,8 +1896,18 @@
     }
 
     // GASへ送信し、スプレッドシートに保存できたかを返す（応答の status まで確認する）
+    let pendingGasSaves = 0;
+    // 送信中に画面を閉じようとしたら確認を出す（送信が途中で切れて記録が残らないのを防ぐ）
+    window.addEventListener("beforeunload", (e) => {
+      if (pendingGasSaves > 0) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    });
+
     async function postToGas(body) {
       if (!currentGasUrl) return null;
+      pendingGasSaves++;
       try {
         const res = await fetch(currentGasUrl, {
           method: "POST",
@@ -1910,6 +1920,8 @@
       } catch (err) {
         console.warn("GAS送信エラー:", err);
         return null;
+      } finally {
+        pendingGasSaves--;
       }
     }
 
@@ -2153,12 +2165,13 @@
     async function saveBatchInputs() {
       const inputs = document.querySelectorAll(".batch-weight-input");
       const dateVal = document.getElementById("batchMeasurementDateInput").value || `${currentSelectedMonth}-01`;
-      const recordsToSave = [];
       const updatedResidents = [];
 
       inputs.forEach(input => {
         const room = input.dataset.room;
         const valStr = input.value.trim();
+        // 書き換えていない欄は保存しない（前回値を今日の日付に写したり、他の端末の入力を消したりしないため）
+        if (valStr === String(input.defaultValue || "").trim()) return;
         const weight = valStr === "" ? null : parseFloat(valStr);
 
         // メモリ内ステート更新
@@ -2177,7 +2190,6 @@
               delete resident.weights[currentSelectedMonth];
             }
           }
-          recordsToSave.push({ room, name: resident.name, weight });
           updatedResidents.push(resident);
         }
       });
@@ -2187,19 +2199,33 @@
       renderMainTable();
       document.getElementById("batchInputModal").classList.add("hidden");
 
-      // スプレッドシート(GAS)へ保存（各利用者の今回入力した日付・月の体重だけを反映）
+      if (updatedResidents.length === 0) {
+        showToast("変更された体重はありません");
+        return;
+      }
+
+      // スプレッドシート(GAS)へ、変更した全員分を1回の通信でまとめて保存（途中で画面を閉じても取りこぼさない）
       if (currentGasUrl) {
-        showToast("スプレッドシートへ送信中...", "info");
-        const failed = [];
-        for (const res of updatedResidents) {
-          const ok = await saveResidentToGas(res, { weights: [dateVal, currentSelectedMonth] });
-          if (!ok) failed.push(res.room);
-        }
-        renderMainTable();
-        if (failed.length === 0) {
-          showToast(`一括入力 (${formatReiwaDate(dateVal)}) をスプレッドシートに保存しました`);
+        showToast(`${updatedResidents.length}名分をスプレッドシートへ送信中...（完了まで画面を閉じないでください）`, "info");
+        const patch = { weights: [dateVal, currentSelectedMonth] };
+        const json = await postToGas({
+          action: "saveResidentsBatch",
+          items: updatedResidents.map(res => ({
+            resident: { room: res.room, name: res.name, height: res.height, notes: packResidentMeta(res) },
+            patch
+          }))
+        });
+        if (json && Array.isArray(json.results)) {
+          // 他の端末が保存した最新の記録を取り込む
+          json.results.forEach(item => {
+            const res = residentsList.find(r => String(r.room) === String(item.room));
+            if (res && item.notes) unpackResidentMeta(res, item.notes);
+          });
+          localStorage.setItem(STORAGE_KEY_OFFLINE_DATA, JSON.stringify(residentsList));
+          renderMainTable();
+          showToast(`一括入力 (${formatReiwaDate(dateVal)}) ${updatedResidents.length}名分をスプレッドシートに保存しました`);
         } else {
-          warnSaveFailed(`${failed.join("・")}号室の体重`);
+          warnSaveFailed(`${updatedResidents.map(r => r.room).join("・")}号室の体重`);
         }
       } else {
         showToast("この端末は未登録のため保存できません。管理者に登録を依頼してください", "warning");
