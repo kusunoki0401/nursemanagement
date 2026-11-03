@@ -123,9 +123,29 @@
         利用者の記録を表示するには、この端末の登録が必要です。<br>
         管理者に登録を依頼してください（登録済みの端末に表示されるQRコードを読み取ると登録できます）。
       </p>
+      <p id="unregisteredHomeScreenHint" class="hidden text-xs leading-relaxed bg-amber-50 border border-amber-200 text-amber-900 rounded-lg p-2.5 text-left">
+        <strong>ホーム画面のアイコンから開いている場合：</strong>このアイコンを長押しして削除し、QRコードを読み取って開いた画面から、もう一度「ホーム画面に追加」してください。追加したアイコンは自動で登録されます。
+      </p>
       <button id="openSettingsFromNoticeBtn" class="mt-1 px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-bold">
         URLを入力して登録する
       </button>
+    </div>
+
+    <!-- iPhone・iPadでQRコードから登録した直後の案内（ホーム画面に追加するとアイコン側も自動で登録される） -->
+    <div id="homeScreenGuide" class="hidden mb-4 p-4 bg-emerald-50 border-2 border-emerald-300 rounded-2xl text-emerald-900 shadow-sm space-y-2">
+      <p class="font-bold text-sm flex items-center gap-1.5">
+        <i data-lucide="smartphone" class="w-4 h-4"></i>
+        この端末を登録しました
+      </p>
+      <p class="text-xs leading-relaxed">
+        ホーム画面にアイコンを置く場合は、<strong>この画面のまま</strong>、共有ボタン（<i data-lucide="share" class="w-3.5 h-3.5 inline"></i>）→「<strong>ホーム画面に追加</strong>」を押してください。追加したアイコンから開いても、登録済みの状態で使えます。
+      </p>
+      <p class="text-[11px] text-rose-700 font-bold">この画面のアドレスには登録情報が入っています。アドレスをコピーして人に送らないでください。</p>
+      <div class="text-right">
+        <button id="closeHomeScreenGuideBtn" type="button" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold">
+          ホーム画面に追加した／追加しない
+        </button>
+      </div>
     </div>
 
     <!-- Diagnostics Banner (Shown only on connection difficulty) -->
@@ -1114,6 +1134,14 @@
       }
     }
 
+    // 端末の現地日付（日本時間）を YYYY-MM-DD で返す。toISOString() は世界標準時のため0〜9時に前日になる
+    function localDateStr(d = new Date()) {
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
     // 氏名に「様」が付いていなければ付ける（名簿の氏名は「〇〇 様」で登録されている場合がある）
     function withSama(name) {
       const n = String(name || "").trim();
@@ -1123,23 +1151,56 @@
     // State Variables
     let currentGasUrl = readStoredGasUrl();
 
+    // iPhone・iPad（iPadOSはMacと名乗るためタッチ対応で判定）
+    function isAppleMobile() {
+      return /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    }
+
+    // ホーム画面に追加したアプリとして開かれているか
+    function isStandaloneApp() {
+      return window.navigator.standalone === true ||
+        (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+    }
+
+    // iPhone・iPadのホーム画面アプリはSafariと保存場所が別になる。
+    // そこで、Safariで登録リンクを開いたときはアドレスに登録情報を残し、
+    // その画面のまま「ホーム画面に追加」すれば、ホーム画面アプリも起動時に自動で登録されるようにする。
+    function keepsSetupLinkForHomeScreen() {
+      return isAppleMobile() && !isStandaloneApp();
+    }
+
     // 登録リンク（アプリURL#setup=<連携先URL>）で開かれたときに、この端末へ登録する。
-    // 「#」以降はサーバーへ送られない。登録後はアドレス欄・履歴から消す。
+    // 「#」以降はサーバーへ送られない。iPhone・iPadのSafari以外では、登録後にアドレス欄・履歴から消す。
     function applySetupFromHash() {
       const hash = window.location.hash || "";
       if (!hash.startsWith("#setup=")) return null;
       let candidate = "";
       try { candidate = decodeURIComponent(hash.slice("#setup=".length)); } catch (e) {}
-      history.replaceState(null, "", window.location.pathname + window.location.search);
+      if (!isValidGasUrl(candidate) || !keepsSetupLinkForHomeScreen()) {
+        clearSetupHash();
+      }
       if (!isValidGasUrl(candidate)) return "invalid";
+      const alreadyRegistered = currentGasUrl === candidate.trim();
       currentGasUrl = candidate.trim();
       localStorage.setItem(STORAGE_KEY_GAS_URL, currentGasUrl);
-      return "registered";
+      if (keepsSetupLinkForHomeScreen()) return "registered-homescreen";
+      // ホーム画面アプリは起動のたびに登録リンクを読むので、2回目以降は何も表示しない
+      return alreadyRegistered ? "unchanged" : "registered";
+    }
+
+    function clearSetupHash() {
+      if ((window.location.hash || "").startsWith("#setup=")) {
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
     }
 
     function notifySetupResult(result) {
       if (result === "registered") {
         showToast("この端末を登録しました");
+      } else if (result === "registered-homescreen") {
+        showToast("この端末を登録しました");
+        document.getElementById("homeScreenGuide")?.classList.remove("hidden");
       } else if (result === "invalid") {
         showToast("登録用リンクが正しくありません。管理者に確認してください", "warning");
       }
@@ -1153,6 +1214,9 @@
     function updateUnregisteredNotice() {
       const notice = document.getElementById("unregisteredNotice");
       if (notice) notice.classList.toggle("hidden", !!currentGasUrl);
+      // ホーム画面アプリで未登録のときは、追加し直す手順を案内する
+      const homeHint = document.getElementById("unregisteredHomeScreenHint");
+      if (homeHint) homeHint.classList.toggle("hidden", !(isAppleMobile() && isStandaloneApp()));
       if (!currentGasUrl) hideDiagnosticsBanner();
     }
     let residentsList = [];
@@ -1831,6 +1895,50 @@
       resident.rawNotes = packedString;
     }
 
+    // GASへ送信し、スプレッドシートに保存できたかを返す（応答の status まで確認する）
+    async function postToGas(body) {
+      if (!currentGasUrl) return null;
+      try {
+        const res = await fetch(currentGasUrl, {
+          method: "POST",
+          redirect: "follow",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(body)
+        });
+        const json = JSON.parse(await res.text());
+        return json && json.status === "success" ? json : null;
+      } catch (err) {
+        console.warn("GAS送信エラー:", err);
+        return null;
+      }
+    }
+
+    // 利用者の変更をスプレッドシートへ保存する。
+    // patch には「今回変更した項目」だけを入れる（fields: メタ項目名, weights: 触った体重キー）。
+    // GAS側は既存の記録にその項目だけを反映するので、別の端末で同時に入力された記録を上書きしない。
+    async function saveResidentToGas(resident, patch, extra = {}) {
+      const json = await postToGas({
+        action: "saveResident",
+        resident: {
+          room: resident.room,
+          name: resident.name,
+          height: resident.height,
+          notes: packResidentMeta(resident)
+        },
+        patch,
+        ...extra
+      });
+      if (!json) return false;
+      // 他の端末が保存した最新の記録を取り込む
+      if (json.notes) unpackResidentMeta(resident, json.notes);
+      localStorage.setItem(STORAGE_KEY_OFFLINE_DATA, JSON.stringify(residentsList));
+      return true;
+    }
+
+    function warnSaveFailed(what) {
+      showToast(`${what}をスプレッドシートに保存できませんでした。通信状況を確認して、もう一度保存してください`, "warning");
+    }
+
     // スプレッドシート（または端末キャッシュ）の利用者一覧を画面用の形に整える
     // ※利用者名簿はスプレッドシートだけに置く（このファイルは公開されるため）
     function normalizeResidents(targetList) {
@@ -1982,7 +2090,7 @@
       tbody.innerHTML = "";
 
       // 測定日のデフォルト設定（当月なら今日の日付、過去/未来ならその月の1日）
-      const todayStr = new Date().toISOString().split("T")[0];
+      const todayStr = localDateStr();
       if (todayStr.startsWith(currentSelectedMonth)) {
         dateInput.value = todayStr;
       } else {
@@ -2079,48 +2187,22 @@
       renderMainTable();
       document.getElementById("batchInputModal").classList.add("hidden");
 
-      // スプレッドシート(GAS)へPOST送信（多人数リアルタイム共有のため各利用者のメタデータも完全保存）
+      // スプレッドシート(GAS)へ保存（各利用者の今回入力した日付・月の体重だけを反映）
       if (currentGasUrl) {
         showToast("スプレッドシートへ送信中...", "info");
-        try {
-          // 1. 各利用者のnotesセルに日付別体重履歴を完全シリアライズ保存（クラウド同期）
-          for (const res of updatedResidents) {
-            const payload = {
-              room: res.room,
-              name: res.name,
-              height: res.height,
-              notes: packResidentMeta(res)
-            };
-            await fetch(currentGasUrl, {
-              method: "POST",
-              redirect: "follow",
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
-              body: JSON.stringify({
-                action: "saveResident",
-                resident: payload
-              })
-            });
-          }
-
-          // 2. 念のため標準のsaveWeightsも呼出
-          fetch(currentGasUrl, {
-            method: "POST",
-            redirect: "follow",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({
-              action: "saveWeights",
-              monthKey: currentSelectedMonth,
-              records: recordsToSave
-            })
-          }).catch(() => {});
-
+        const failed = [];
+        for (const res of updatedResidents) {
+          const ok = await saveResidentToGas(res, { weights: [dateVal, currentSelectedMonth] });
+          if (!ok) failed.push(res.room);
+        }
+        renderMainTable();
+        if (failed.length === 0) {
           showToast(`一括入力 (${formatReiwaDate(dateVal)}) をスプレッドシートに保存しました`);
-        } catch (err) {
-          console.error(err);
-          showToast("ネットワーク警告: スプレッドシートへの保存中に通信が途切れました", "warning");
+        } else {
+          warnSaveFailed(`${failed.join("・")}号室の体重`);
         }
       } else {
-        showToast("オフライン保存されました（GASのURLを設定してください）");
+        showToast("この端末は未登録のため保存できません。管理者に登録を依頼してください", "warning");
       }
     }
 
@@ -2383,7 +2465,7 @@
       }
 
       // 個別測定フォームの初期化（今日の日付、空欄）
-      const todayStr = new Date().toISOString().split("T")[0];
+      const todayStr = localDateStr();
       const indDateInput = document.getElementById("individualDateInput");
       const indWeightInput = document.getElementById("individualWeightInput");
       if (indDateInput) {
@@ -2802,26 +2884,12 @@
 
       // スプレッドシート(GAS)へ送信
       if (currentGasUrl) {
-        try {
-          const payload = {
-            room: selectedResident.room,
-            name: selectedResident.name,
-            height: selectedResident.height,
-            notes: packResidentMeta(selectedResident)
-          };
-          await fetch(currentGasUrl, {
-            method: "POST",
-            redirect: "follow",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({
-              action: "saveResident",
-              resident: payload
-            })
-          });
-          showToast(`${selectedResident.room}号室 ${formatReiwaDate(dateVal)}の測定をスプレッドシートに保存しました`);
-        } catch(err) {
-          console.warn(err);
-          showToast("通信警告: スプレッドシート同期に失敗しました", "warning");
+        const target = selectedResident;
+        const ok = await saveResidentToGas(target, { weights: [dateVal, monthPart] });
+        if (ok) {
+          showToast(`${target.room}号室 ${formatReiwaDate(dateVal)}の測定をスプレッドシートに保存しました`);
+        } else {
+          warnSaveFailed("測定結果");
         }
       }
     }
@@ -2849,23 +2917,15 @@
       renderTrendChart(selectedResident);
       renderWeightComparisonCard(selectedResident);
       renderMainTable();
-      showToast("測定記録を削除しました");
-
       if (currentGasUrl) {
-        try {
-          const payload = {
-            room: selectedResident.room,
-            name: selectedResident.name,
-            height: selectedResident.height,
-            notes: packResidentMeta(selectedResident)
-          };
-          await fetch(currentGasUrl, {
-            method: "POST",
-            redirect: "follow",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ action: "saveResident", resident: payload })
-          });
-        } catch(e) {}
+        const touched = [recordKey];
+        if (recordKey.length === 10) touched.push(recordKey.substring(0, 7));
+        const ok = await saveResidentToGas(selectedResident, { weights: touched });
+        if (ok) {
+          showToast("測定記録を削除しました");
+        } else {
+          warnSaveFailed("測定記録の削除");
+        }
       }
     }
 
@@ -2891,26 +2951,11 @@
       showToast("スプレッドシートへ保存中...", "info");
 
       if (currentGasUrl) {
-        try {
-          const payload = {
-            room: selectedResident.room,
-            name: selectedResident.name,
-            height: selectedResident.height,
-            notes: packResidentMeta(selectedResident)
-          };
-          await fetch(currentGasUrl, {
-            method: "POST",
-            redirect: "follow",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({
-              action: "saveResident",
-              resident: payload
-            })
-          });
+        const ok = await saveResidentToGas(selectedResident, { fields: ["notes"] });
+        if (ok) {
           showToast("ケアメモをスプレッドシートに保存しました");
-        } catch(e) {
-          console.warn(e);
-          showToast("スプレッドシート同期に失敗しました", "warning");
+        } else {
+          warnSaveFailed("ケアメモ");
         }
       }
     }
@@ -3330,22 +3375,11 @@
       showToast(`${withSama(res.name)}を在籍一覧へ復帰させました`);
 
       if (currentGasUrl) {
-        try {
-          const payload = {
-            room: res.room,
-            name: res.name,
-            height: res.height,
-            notes: packResidentMeta(res)
-          };
-          await fetch(currentGasUrl, {
-            method: "POST",
-            redirect: "follow",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ action: "saveResident", resident: payload })
-          });
+        const ok = await saveResidentToGas(res, { fields: ["isDischarged"] });
+        if (ok) {
           showToast("スプレッドシートへ復帰情報を保存しました");
-        } catch(e) {
-          console.warn("GAS同期警告:", e);
+        } else {
+          warnSaveFailed("在籍復帰");
         }
       }
     }
@@ -3390,7 +3424,7 @@
       window.addEventListener("hashchange", () => {
         const result = applySetupFromHash();
         if (!result) return;
-        if (result === "registered") loadDataFromSpreadsheet();
+        if (result === "registered" || result === "registered-homescreen") loadDataFromSpreadsheet();
         notifySetupResult(result);
       });
 
@@ -3535,37 +3569,17 @@
         closeEditResidentModal();
         showToast("スプレッドシートへ保存中...", "info");
 
-        // GASへ非同期通信してスプレッドシートに永続保存（多人数共有のためメタデータもnotesに完全格納）
+        // スプレッドシートへ保存（編集した項目だけを反映。居室番号を変えた場合は元の行を書き換える）
         if (currentGasUrl) {
-          try {
-            const payload = {
-              room: newRoom,
-              name: newName,
-              height: selectedResident.height,
-              notes: packResidentMeta(selectedResident)
-            };
-            const res = await fetch(currentGasUrl, {
-              method: "POST",
-              redirect: "follow",
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
-              body: JSON.stringify({
-                action: "saveResident",
-                oldRoom: oldRoom,
-                oldName: oldName,
-                resident: payload
-              })
-            });
-            const text = await res.text();
-            let jsonRes;
-            try { jsonRes = JSON.parse(text); } catch(e) {}
-            if (jsonRes && jsonRes.status === "success") {
-              showToast(`${newRoom}号室 ${newName} をスプレッドシートに保存しました`);
-            } else {
-              showToast("スプレッドシートへ保存完了（反映を確認中）");
-            }
-          } catch(err) {
-            console.warn("GAS同期警告:", err);
-            showToast("通信エラー: スプレッドシートに書き込めませんでした", "warning");
+          const ok = await saveResidentToGas(
+            selectedResident,
+            { fields: ["name", "height", "gender", "careLevel", "admissionDate"] },
+            { oldRoom: oldRoom }
+          );
+          if (ok) {
+            showToast(`${newRoom}号室 ${newName} をスプレッドシートに保存しました`);
+          } else {
+            warnSaveFailed("利用者情報");
           }
         }
       });
@@ -3589,23 +3603,14 @@
         selectedResident = null;
 
         renderMainTable();
-        showToast(`${targetRoom}号室 ${targetName} を削除しました`);
 
         // GASへ削除リクエスト送信
         if (currentGasUrl) {
-          try {
-            await fetch(currentGasUrl, {
-              method: "POST",
-              redirect: "follow",
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
-              body: JSON.stringify({
-                action: "deleteResident",
-                id: targetId,
-                room: targetRoom
-              })
-            });
-          } catch(err) {
-            console.warn(err);
+          const ok = await postToGas({ action: "deleteResident", id: targetId, room: targetRoom });
+          if (ok) {
+            showToast(`${targetRoom}号室 ${targetName} を削除しました`);
+          } else {
+            warnSaveFailed("利用者の削除");
           }
         }
       });
@@ -3646,23 +3651,13 @@
         renderMainTable();
         document.getElementById("addResidentModal").classList.add("hidden");
         document.getElementById("addResidentForm").reset();
-        showToast(`${room}号室 ${name} を登録しました`);
-
         if (currentGasUrl) {
-          try {
-            const payload = {
-              room,
-              name,
-              height: newObj.height,
-              notes: packResidentMeta(newObj)
-            };
-            await fetch(currentGasUrl, {
-              method: "POST",
-              redirect: "follow",
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
-              body: JSON.stringify({ action: "saveResident", resident: payload })
-            });
-          } catch(err) { console.warn(err); }
+          const ok = await saveResidentToGas(newObj, null);
+          if (ok) {
+            showToast(`${room}号室 ${name} を登録しました`);
+          } else {
+            warnSaveFailed("新しい利用者");
+          }
         }
       });
 
@@ -3714,6 +3709,10 @@
       document.getElementById("openSettingsFromNoticeBtn").addEventListener("click", openSettingsModal);
       document.getElementById("closeSettingsModalBtn").addEventListener("click", closeSettingsModal);
       document.getElementById("showSetupQrBtn").addEventListener("click", showSetupQr);
+      document.getElementById("closeHomeScreenGuideBtn").addEventListener("click", () => {
+        clearSetupHash();
+        document.getElementById("homeScreenGuide").classList.add("hidden");
+      });
       document.getElementById("hideSetupQrBtn").addEventListener("click", hideSetupQr);
 
       document.getElementById("saveGasSettingsBtn").addEventListener("click", () => {
@@ -3822,7 +3821,7 @@
         }
 
         document.getElementById("dischargeTargetResidentName").textContent = `${selectedResident.room}号室 ${withSama(selectedResident.name)}`;
-        const todayStr = new Date().toISOString().split("T")[0];
+        const todayStr = localDateStr();
         document.getElementById("dischargeDateInput").value = selectedResident.dischargeDate || todayStr;
         document.getElementById("dischargeReasonSelect").value = selectedResident.dischargeReason || "病院入院";
         document.getElementById("dischargeNotesInput").value = selectedResident.dischargeNotes || "";
@@ -3874,23 +3873,11 @@
           showToast(`${withSama(selectedResident.name)}を退所者BOXへ移動しました`);
 
           if (currentGasUrl) {
-            try {
-              const payload = {
-                room: selectedResident.room,
-                name: selectedResident.name,
-                height: selectedResident.height,
-                notes: packResidentMeta(selectedResident)
-              };
-              await fetch(currentGasUrl, {
-                method: "POST",
-                redirect: "follow",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ action: "saveResident", resident: payload })
-              });
+            const ok = await saveResidentToGas(selectedResident, { fields: ["isDischarged", "dischargeDate", "dischargeReason", "dischargeNotes"] });
+            if (ok) {
               showToast("退所情報をスプレッドシートへ保存しました");
-            } catch(err) {
-              console.warn("GAS退所同期エラー:", err);
-              showToast("通信エラー: スプレッドシート同期に失敗しました", "warning");
+            } else {
+              warnSaveFailed("退所情報");
             }
           }
         });
